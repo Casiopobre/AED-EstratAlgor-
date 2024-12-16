@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include "colors.h"
 #include "algoritmos.h"
-#define TAMARRAY 10
+
 
 int main() {
-    char opcion;
-    Ataque arrayAtaques[TAMARRAY];
+    char opcion, opcion2; 
     
     do {
         printf(BOLD_MAGENTA);
@@ -23,7 +22,39 @@ int main() {
         switch (opcion)
         {
         case 'a': case 'A':
-            /* code */
+            do{
+                printf(BOLD_MAGENTA);
+                printf("\n--------------------------------------------------------");
+                printf("\n~*~*~*~*~*~*~*~ Seleccione unha opción ~*~*~*~*~*~*~*~\n");
+                printf("\na) Con 3 elementos (sen vector usadas)\n");
+                printf("\nb) Con 6 elementos (sen vector usadas)\n");
+                printf("\nc) Con 3 elementos (con vector usadas)\n");
+                printf("\nd) Con 6 elementos (con vector usadas)\n");
+                printf("\ne) Atrás\n");
+                printf("--------------------------------------------------------\n");
+                printf(RESET);
+                printf("\nOpcion: ");
+                scanf(" %c", &opcion2);
+
+                switch (opcion2){
+                case 'a': case 'A':
+                    Backtracking(3);
+                    break;
+                case 'b': case 'B':
+                    Backtracking(6);
+                    break;
+                case 'c': case 'C':
+                    BacktrackingUsadas(3);
+                    break;
+                case 'd': case 'D':
+                    BacktrackingUsadas(6);
+                    break;
+                
+                default:
+                    break;
+                }
+
+            } while (opcion2 != 'e');
             break;
 
         case 'b': case 'B':
