@@ -14,10 +14,10 @@ INCLUDES = -I $(HEADER_FILES_DIR)
 OUTPUT = executable
 
 #ficheros .h. Si hay varios, se precede cada uno con $(HEADER_FILES_DIR)/
-HEADERS = $(HEADER_FILES_DIR)/colors.h $(HEADER_FILES_DIR)/algoritmos.h
+HEADERS = $(HEADER_FILES_DIR)/colors.h $(HEADER_FILES_DIR)/algoritmos.h $(HEADER_FILES_DIR)/lista.h
 
 #FUENTES: todos los archivos .c necesarios
-SRCS = main.c algoritmos.c
+SRCS = main.c algoritmos.c lista.c
 
 #ficheros .o: todos los .o con un analogo .c en SRCS
 OBJS = $(SRCS:.c=.o)

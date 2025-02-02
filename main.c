@@ -58,7 +58,31 @@ int main() {
             break;
 
         case 'b': case 'B':
-            /* code */
+            do{
+                printf(BOLD_MAGENTA);
+                printf("\n--------------------------------------------------------");
+                printf("\n~*~*~*~*~*~*~*~ Seleccione unha opción ~*~*~*~*~*~*~*~\n");
+                printf("\na) Asignación trivial\n");
+                printf("\nb) Asignación precisa\n");
+                printf("\ne) Atrás\n");
+                printf("--------------------------------------------------------\n");
+                printf(RESET);
+                printf("\nOpcion: ");
+                scanf(" %c", &opcion2);
+
+                switch (opcion2){
+                case 'a': case 'A':
+                    asignacionTrivial();
+                    break;
+                case 'b': case 'B':
+                    asignacionPrecisa();
+                    break;
+                
+                default:
+                    break;
+                }
+
+            } while (opcion2 != 'e');
             break;
 
         default:

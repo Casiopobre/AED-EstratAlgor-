@@ -1,7 +1,0 @@
-Num,Cidade,Galeon
-1,King’s,Landing,Iron,Victory
-2,Lannisport,Grief
-3,Oldtown,Lord Quellon
-4,White Harbor,Lamentation
-5,Seagard,Kite
-6,Storm’s End,Dagger
