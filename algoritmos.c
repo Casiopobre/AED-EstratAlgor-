@@ -18,6 +18,11 @@ int matrizBeneficios6[6][6] = {
     {12, 20, 19, 13, 22, 17}
 };
 
+/**
+ * TODO:
+ * Imprimir as asignacións, Errores para N=6 SU (beneficio 79) y CU (beneficio 83)
+ */
+
 // Contadores para os pasos que dan as funcións auxiliares:
 int pasosCriterio, pasosXerar, pasosSolucion, pasosMaisIrmans, pasosRetroceder;
 
@@ -37,12 +42,17 @@ void _xerar(int nivel, int vSol[], int *beneficioAct, int mBeneficios[][nB]){
     pasosXerar += 1; // Contador
 
     vSol[nivel] += 1;
-
-    if (vSol[nivel] == 0){
+    if (nB == 3){
+        if (vSol[nivel] == 0)
         *beneficioAct += matrizBeneficios3[nivel][vSol[nivel]];
-    } else {
-        *beneficioAct += matrizBeneficios3[nivel][vSol[nivel]] - matrizBeneficios3[nivel][vSol[nivel] - 1];
-    }
+        else
+            *beneficioAct += matrizBeneficios3[nivel][vSol[nivel]] - matrizBeneficios3[nivel][vSol[nivel] - 1];
+    } else if (nB == 6){
+        if (vSol[nivel] == 0)
+        *beneficioAct += matrizBeneficios6[nivel][vSol[nivel]];
+        else
+            *beneficioAct += matrizBeneficios6[nivel][vSol[nivel]] - matrizBeneficios6[nivel][vSol[nivel] - 1];
+    } 
 }
 
 /**
@@ -80,7 +90,10 @@ int _maisIrmans(int nivel, int vSol[], int tamM){
  */
 void _retroceder(int *nivel, int vSol[], int *beneficioAct){
     pasosRetroceder += 1; // Contador
-    *beneficioAct -= matrizBeneficios3[*nivel][vSol[*nivel]];
+    if (nB == 3)
+        *beneficioAct -= matrizBeneficios3[*nivel][vSol[*nivel]];
+    else if (nB == 6)
+        *beneficioAct -= matrizBeneficios6[*nivel][vSol[*nivel]];
     vSol[*nivel] = -1;
     *nivel -= 1;
 }
@@ -275,307 +288,12 @@ void BacktrackingUsadas(int tamM){
     printf(RESET);
 }
 
-// Ramificación e poda:  //////////////////////////////////////////////////////////////////////////////////////
+
 
 /**
  * TODO:
- * Implementar as funcions para calcular cota e benefcio
+ * Imprimir as asignacións, e revisar valores
  */
 
 // Funcións auxiliares para ramificación e poda:
-
-int max(int B[][N]){
-    int max = B[0][0];
-    for(int i = 0; i < N; i++){
-        for(int j = 0; j < N; j++){
-            if(B[i][j] > max) max = B[i][j];
-        }
-    }
-    return max;
-}
-
-void _BE(TIPOELEMENTOLISTA *e){
-    e->BE = (e->CI + e->CS) / 2;
-}
-
-void _CI_trivial(TIPOELEMENTOLISTA *e){
-    e->CI = e->beneficioAct;
-}
-
-void _CS_trivial(TIPOELEMENTOLISTA *e, int mBeneficios[][N]){
-    e->CS = e->beneficioAct + (N - (e->nivel + 1)) * max(mBeneficios);
-}
-
-TIPOELEMENTOLISTA _seleccionar(TLISTA *l){
-    TPOSICION pos = primeroLista(*l);
-    float beneficioMax = -1;
-    TIPOELEMENTOLISTA nodoMax;
-    TPOSICION posMax = NULL;
-
-    while(pos != finLista(*l)){
-        TIPOELEMENTOLISTA nodoAct;
-        recuperarElementoLista(*l, pos, &nodoAct);
-        if(nodoAct.BE > beneficioMax){
-            beneficioMax = nodoAct.BE;
-            nodoMax = nodoAct;
-            posMax = pos;
-        }
-        pos = siguienteLista(*l, pos);
-    }
-
-    if(posMax != NULL){
-        suprimirElementoLista(l, posMax);
-    }
-    return nodoMax;
-}
-
-int _solucionRyP(TIPOELEMENTOLISTA e){
-    return e.nivel == (N-1);
-}
-
-void asignacionTrivial(){
-    // Matriz a emplear:
-    int mBeneficios[N][N];
-    if (N == 3){
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                mBeneficios[i][j] = matrizBeneficios3[i][j];
-            }
-        }
-    } else if (N == 6){
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                mBeneficios[i][j] = matrizBeneficios6[i][j];
-            }
-        }
-    } else {
-        printf(RED "Erro: N non valido\n" RESET);
-        return;
-    }
-
-    // Seteamos as variables
-    pasosCriterio = 0, pasosXerar = 0, pasosSolucion = 0, pasosMaisIrmans = 0, pasosRetroceder = 0;
-    nodosVisitados = 1;
-
-    TLISTA LNV;
-    TIPOELEMENTOLISTA raiz, x, y, s;
-    float C = 0;
-
-    raiz.beneficioAct = 0;
-    raiz.nivel = -1;
-    for (int i = 0; i < N; i++){
-        raiz.tupla[i] = -1;
-        raiz.usadas[i] = 0;
-    }
-    _CI_trivial(&raiz);
-    _CS_trivial(&raiz, mBeneficios);
-    _BE(&raiz);
-    raiz.n = 1;
-    y.n = raiz.n;
-
-    s.beneficioAct = -1;
-
-    C = raiz.CI;
-
-    // Creaos a lista
-    crearLista(&LNV);
-
-    // Gardo a raiz como o primeiro nodo da LNV
-    insertarElementoLista(&LNV, primeroLista(LNV), raiz);
-
-    // Aplicamos RyP
-    while(!esListaVacia(LNV)){
-        x = _seleccionar(&LNV);
-        if(x.CS > C){
-            for (int i = 0; i < N; i++){
-                y.nivel = x.nivel+1;
-                for (int j = 0; j < N; j++){
-                    y.tupla[j] = x.tupla[j];
-                    y.usadas[j] = y.usadas[j];
-                }
-                if (!x.usadas[i]){
-                    y.tupla[y.nivel] = i;
-                    y.usadas[i] = 1;
-                    y.beneficioAct = x.beneficioAct + mBeneficios[y.nivel][i];
-
-                    _CI_trivial(&y);
-                    _CS_trivial(&y, mBeneficios);
-                    _BE(&y);
-
-                    y.n += 1;
-
-                    if (_solucionRyP(y) && (y.beneficioAct > s.beneficioAct)){
-                        s = y;
-                        if (y.beneficioAct > C)
-                            C = y.beneficioAct;
-                    } else if (!_solucionRyP(y) && (y.CS > C)){
-                        insertarElementoLista(&LNV, primeroLista(LNV), y);
-                        if(y.CI > C)
-                            C = y.CI;
-                    }
-                }
-            }
-        }
-    }
-
-    printf(BOLD_YELLOW "\n>> Ramificacion e poda con asignacón trivial (matriz de tamaño %d):\n" RESET, N);
-    //printf(BOLD_GREEN "\tSolucion: %d\n", s.beneficioAct);
-    printf("\tNum nodos: %d\n" RESET, y.n);
-
-}
-
-int _asignacionVoraz(TIPOELEMENTOLISTA e, int mBeneficios[][N]){
-    int beneficioAcumulado = 0;
-    for (int i = e.nivel+1; i < N; i++){
-        int maxBeneficio = -1;
-        int k = -1;
-
-        for (int j = 0; j < N; j++){
-            if(!e.usadas[j] && mBeneficios[i][j] > maxBeneficio){
-                maxBeneficio = mBeneficios[i][j];
-                k = j;
-            }
-        }
-
-        if(k != -1){
-            e.usadas[k] = 1;
-            beneficioAcumulado += maxBeneficio;
-        }
-    }
-    return beneficioAcumulado;
-}
-
-int _maximosTareas(TIPOELEMENTOLISTA e, int mBeneficios[][N]){
-    int beneficioAcumulado = 0;
-    for(int i = e.nivel + 1; i < N; i++){
-            int maxBeneficio = -1;
-            for(int j= 0; j<N; j++){
-                if (mBeneficios[i][j] > maxBeneficio){
-                    maxBeneficio = mBeneficios[i][j];
-                }
-            }
-            beneficioAcumulado += maxBeneficio;
-        }
-        return beneficioAcumulado;
-}
-
-void _CI_precisa(TIPOELEMENTOLISTA *e, int mBeneficios[][N]){
-    e->CI = e->beneficioAct + _asignacionVoraz(*e, mBeneficios);
-}
-
-void _CS_precisa(TIPOELEMENTOLISTA *e, int mBeneficios[][N]){
-    e->CS = e->beneficioAct + _maximosTareas(*e, mBeneficios);
-}
-
-TIPOELEMENTOLISTA _solAsignacionVoraz(TIPOELEMENTOLISTA e, int mBeneficios[][N]){
-    int beneficioMax, tMax;
-    for (int i = e.nivel+1; i < N; i++){
-        beneficioMax = -1;
-        tMax = -1;
-        for(int j = 0; j < N; j++){
-            if(!e.usadas[j] && mBeneficios[i][j] > beneficioMax){
-                beneficioMax = mBeneficios[i][j];
-                tMax = j;
-            }
-        }
-        e.tupla[i] = tMax;
-        e.usadas[tMax] = 1;
-        e.beneficioAct = e.beneficioAct + beneficioMax;
-        e.n += 1;
-    }
-    e.nivel = N - 1;
-    return e;
-}
-
-void asignacionPrecisa(){
-    // Matriz a emplear:
-    int mBeneficios[N][N];
-    if (N == 3){
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                mBeneficios[i][j] = matrizBeneficios3[i][j];
-            }
-        }
-    } else if (N == 6){
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                mBeneficios[i][j] = matrizBeneficios6[i][j];
-            }
-        }
-    } else {
-        printf(RED "Erro: N non valido\n" RESET);
-        return;
-    }
-
-    // Seteamos as variables
-    pasosCriterio = 0, pasosXerar = 0, pasosSolucion = 0, pasosMaisIrmans = 0, pasosRetroceder = 0;
-    nodosVisitados = 1;
-    TLISTA LNV;
-    TIPOELEMENTOLISTA raiz, x, y, s;
-    float C = 0;
-
-    raiz.beneficioAct = 0;
-    raiz.nivel = -1;
-    for (int i = 0; i < N; i++){
-        raiz.usadas[i] = 0;
-        raiz.tupla[i] = -1;
-    }
-    _CI_precisa(&raiz, mBeneficios);
-    _CS_precisa(&raiz, mBeneficios);
-    _BE(&raiz);
-    raiz.n = 1;
-    y.n = raiz.n;
-
-    s.beneficioAct = -1;
-    y.n = raiz.n;
-
-    crearLista(&LNV);
-
-    insertarElementoLista(&LNV, primeroLista(LNV), raiz);
-
-    while(!esListaVacia(LNV)){
-        x = _seleccionar(&LNV);
-        if(x.CS > C){
-            for (int i = 0; i < N; i++){
-                y.nivel = x.nivel + 1;
-                for(int j = 0; j < N; j++){
-                    y.tupla[j] = x.tupla[j];
-                    y.usadas[j] = x.usadas[j];
-                }
-
-                if (!x.usadas[i]){
-                    y.tupla[y.nivel] = i;
-                    y.usadas[i] = 1;
-                    y.beneficioAct = x.beneficioAct + mBeneficios[y.nivel][i];
-                    _CI_precisa(&y, mBeneficios);
-                    _CS_precisa(&y, mBeneficios);
-                    _BE(&y);
-                    y.n += 1;
-
-                    if (!_solucionRyP(y) && y.CS >= C && y.CS == y.CI){
-                        y = _solAsignacionVoraz(y, mBeneficios);
-                        s = y;
-                        if(y.beneficioAct > C)
-                            C = y.beneficioAct;
-                        continue;
-                    }
-                    if (_solucionRyP(y) && y.beneficioAct > s.beneficioAct){
-                        s = y;
-                        if(y.beneficioAct > C)
-                            C = y.beneficioAct;
-                    } else if(!_solucionRyP(y) && y.CS > C){
-                        insertarElementoLista(&LNV, primeroLista(LNV), y);
-                        if(y.CI > C)
-                            C = y.CI;
-                    }
-                }
-            }
-        } else if(x.CS == C && x.CS == x.CI){
-            s = _solAsignacionVoraz(x, mBeneficios);
-        }
-    }
-    printf(BOLD_YELLOW "\n>> Ramificacion e poda con asignacón precisa (matriz de tamaño %d):\n" RESET, N);
-    //printf(BOLD_GREEN "\tSolucion: %d\n", s.beneficioAct);
-    printf("\tNum nodos: %d\n" RESET, y.n);
-}
 
