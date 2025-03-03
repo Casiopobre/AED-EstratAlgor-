@@ -3,7 +3,7 @@
 #define N 3 // * Cambiar para os distintos tamaños de matriz */
 
 typedef struct TELEMENTOLISTA{
-    int n;              // Numero de nodo
+    int n;              // Número de nodos visitados
     int tupla[N];       // Sol parcial do nodo
     int nivel;          // Nivel do nodo
     int beneficioAct;   // Beneficio actual
