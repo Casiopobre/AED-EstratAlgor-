@@ -3,7 +3,6 @@
 #include "colors.h"
 #include "algoritmos.h"
 
-
 int main() {
     char opcion, opcion2; 
     

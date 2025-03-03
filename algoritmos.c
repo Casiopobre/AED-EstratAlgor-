@@ -18,6 +18,11 @@ int matrizBeneficios6[6][6] = {
     {12, 20, 19, 13, 22, 17}
 };
 
+/**
+ * TODO:
+ * Error para N=6 sin usadas (beneficio 79) con usadas (beneficio 83)
+ */
+
 // Contadores para os pasos que dan as funcións auxiliares:
 int pasosCriterio, pasosXerar, pasosSolucion, pasosMaisIrmans, pasosRetroceder;
 
@@ -31,18 +36,87 @@ int nB;
 // Funcions auxiliares para backtacking:
 
 /**
+ * @brief Función para imprimir a asignación
+ */
+void _imprimirAsignacion(int vSol[], int tamM){
+    printf(BRIGHT_BOLD_GREEN "\tAsignacións: \n" RESET);
+    for (int i = 0; i < tamM; i++) {
+        printf(CYAN);
+        printf("\tGaleón %d: ", i+1);
+        switch (i){
+        case 0:
+            printf("\tIron Victory\n");
+            break;
+        case 1:
+            printf("\tGrief\n");
+            break;
+        case 2:
+            printf("\tLord Quellon\n");
+            break;
+        case 3:
+            printf("\tLamentation\n");
+            break;
+        case 4:
+            printf("\tKite\n");
+            break;
+        case 5:
+            printf("\tDagger\n");
+            break;
+        
+        default:
+            printf("\tERRO\n");
+            break;
+        }
+        printf(RESET);
+
+        printf(BLUE);
+        printf("\tCidade %d: ", i+1);
+        switch (vSol[i]){
+        case 0:
+            printf("\tKing's Landing\n");
+            break;
+        case 1:
+            printf("\tLannisport\n");
+            break;
+        case 2:
+            printf("\tOldtown\n");
+            break;
+        case 3:
+            printf("\tWhite Harbor\n");
+            break;
+        case 4:
+            printf("\tSeagard\n");
+            break;
+        case 5:
+            printf("\tStorm's End\n");
+            break;
+        
+        default:
+            printf("\tERRO\n");
+            break;
+        }
+        printf(RESET);
+    }   
+}
+
+/**
  * @brief Función que xera o irmau proximo na arbore
  */
 void _xerar(int nivel, int vSol[], int *beneficioAct, int mBeneficios[][nB]){
     pasosXerar += 1; // Contador
 
     vSol[nivel] += 1;
-
-    if (vSol[nivel] == 0){
-        *beneficioAct += matrizBeneficios3[nivel][vSol[nivel]];
-    } else {
-        *beneficioAct += matrizBeneficios3[nivel][vSol[nivel]] - matrizBeneficios3[nivel][vSol[nivel] - 1];
-    }
+    if (nB == 3){
+        if (vSol[nivel] == 0)
+            *beneficioAct += matrizBeneficios3[nivel][vSol[nivel]];
+        else
+            *beneficioAct += matrizBeneficios3[nivel][vSol[nivel]] - matrizBeneficios3[nivel][vSol[nivel] - 1];
+    } else if (nB == 6){
+        if (vSol[nivel] == 0)
+            *beneficioAct += matrizBeneficios6[nivel][vSol[nivel]];
+        else
+            *beneficioAct += matrizBeneficios6[nivel][vSol[nivel]] - matrizBeneficios6[nivel][vSol[nivel] - 1];
+    } 
 }
 
 /**
@@ -80,7 +154,10 @@ int _maisIrmans(int nivel, int vSol[], int tamM){
  */
 void _retroceder(int *nivel, int vSol[], int *beneficioAct){
     pasosRetroceder += 1; // Contador
-    *beneficioAct -= matrizBeneficios3[*nivel][vSol[*nivel]];
+    if (nB == 3)
+        *beneficioAct -= matrizBeneficios3[*nivel][vSol[*nivel]];
+    else if (nB == 6)
+        *beneficioAct -= matrizBeneficios6[*nivel][vSol[*nivel]];
     vSol[*nivel] = -1;
     *nivel -= 1;
 }
@@ -125,7 +202,7 @@ void Backtracking(int tamM){
         if (_solucion(nivel, vSol, tamM) && (beneficioAct > valorOptimoAct)){
             valorOptimoAct = beneficioAct;
 
-            for (int i = 0; i < 3; i++){
+            for (int i = 0; i < tamM; i++){
                 solOptimaAct[i] = vSol[i];
             }
         }
@@ -142,7 +219,7 @@ void Backtracking(int tamM){
 
     printf(BOLD_YELLOW ">> Sin vector de usadas e matriz de tamaño %d:\n" RESET, tamM);
     printf(BOLD_GREEN);
-    printf("\tValor optimo: %d\n", valorOptimoAct);
+    printf("\tBeneficio total: %d\n", valorOptimoAct);
     printf("\tNum de nodos visitados: %d\n", nodosVisitados);
     printf("\tNum pasos _criterio: %d\n", pasosCriterio);
     printf("\tNum pasos _xerar: %d\n", pasosXerar);
@@ -150,7 +227,8 @@ void Backtracking(int tamM){
     printf("\tNum pasos _maisIrmans: %d\n", pasosMaisIrmans);
     printf("\tNum pasos _retroceder: %d\n", pasosRetroceder);
     printf(RESET);
-    
+
+    _imprimirAsignacion(solOptimaAct, tamM);
 }
 
 
@@ -202,7 +280,10 @@ int _maisIrmansUsadas(int nivel, int vSol[], int tamM){
  */
 void _retrocederUsadas(int *nivel, int vSol[], int *beneficioAct, int usadas[]){
     pasosRetroceder += 1; // Contador
-    *beneficioAct -= matrizBeneficios3[*nivel][vSol[*nivel]];
+    if (nB == 3)
+        *beneficioAct -= matrizBeneficios3[*nivel][vSol[*nivel]];
+    else if (nB == 6)
+        *beneficioAct -= matrizBeneficios6[*nivel][vSol[*nivel]];
     usadas[vSol[*nivel]] -= 1;
     vSol[*nivel] = -1;
     *nivel -= 1;
@@ -248,7 +329,7 @@ void BacktrackingUsadas(int tamM){
         if (_solucionUsadas(nivel, vSol, tamM, usadas) && (beneficioAct > valorOptimoAct)){
             valorOptimoAct = beneficioAct;
 
-            for (int i = 0; i < 3; i++){
+            for (int i = 0; i < tamM; i++){
                 solOptimaAct[i] = vSol[i];
             }
         }
@@ -265,7 +346,7 @@ void BacktrackingUsadas(int tamM){
 
     printf(BOLD_YELLOW ">> Con vector de usadas e matriz de tamaño %d:\n" RESET, tamM);
     printf(BOLD_GREEN);
-    printf("\tValor optimo: %d\n", valorOptimoAct);
+    printf("\tBeneficio total: %d\n", valorOptimoAct);
     printf("\tNum de nodos visitados: %d\n", nodosVisitados);
     printf("\tNum pasos _criterio: %d\n", pasosCriterio);
     printf("\tNum pasos _xerar: %d\n", pasosXerar);
@@ -273,17 +354,21 @@ void BacktrackingUsadas(int tamM){
     printf("\tNum pasos _maisIrmans: %d\n", pasosMaisIrmans);
     printf("\tNum pasos _retroceder: %d\n", pasosRetroceder);
     printf(RESET);
+
+    _imprimirAsignacion(solOptimaAct, tamM);
+
 }
 
-// Ramificación e poda:  //////////////////////////////////////////////////////////////////////////////////////
+
 
 /**
  * TODO:
- * Implementar as funcions para calcular cota e benefcio
+ * Imprimir as asignacións, e revisar valores
  */
 
 // Funcións auxiliares para ramificación e poda:
 
+// Determina o valor máximo dunha matriz
 int max(int B[][N]){
     int max = B[0][0];
     for(int i = 0; i < N; i++){
@@ -294,14 +379,17 @@ int max(int B[][N]){
     return max;
 }
 
+// Calcula o beneficio estimado dun nodo
 void _BE(TIPOELEMENTOLISTA *e){
     e->BE = (e->CI + e->CS) / 2;
 }
 
+// Valcula a cota inferior dun nodo
 void _CI_trivial(TIPOELEMENTOLISTA *e){
     e->CI = e->beneficioAct;
 }
 
+// Calcula a cota superior dun nodo
 void _CS_trivial(TIPOELEMENTOLISTA *e, int mBeneficios[][N]){
     e->CS = e->beneficioAct + (N - (e->nivel + 1)) * max(mBeneficios);
 }
@@ -352,9 +440,6 @@ void asignacionTrivial(){
         printf(RED "Erro: N non valido\n" RESET);
         return;
     }
-
-    // Seteamos as variables
-    pasosCriterio = 0, pasosXerar = 0, pasosSolucion = 0, pasosMaisIrmans = 0, pasosRetroceder = 0;
     nodosVisitados = 1;
 
     TLISTA LNV;
@@ -391,7 +476,7 @@ void asignacionTrivial(){
                 y.nivel = x.nivel+1;
                 for (int j = 0; j < N; j++){
                     y.tupla[j] = x.tupla[j];
-                    y.usadas[j] = y.usadas[j];
+                    y.usadas[j] = x.usadas[j];
                 }
                 if (!x.usadas[i]){
                     y.tupla[y.nivel] = i;
@@ -419,26 +504,31 @@ void asignacionTrivial(){
     }
 
     printf(BOLD_YELLOW "\n>> Ramificacion e poda con asignacón trivial (matriz de tamaño %d):\n" RESET, N);
-    //printf(BOLD_GREEN "\tSolucion: %d\n", s.beneficioAct);
+    printf(BOLD_GREEN "\tSolucion: %d\n", s.beneficioAct);
     printf("\tNum nodos: %d\n" RESET, y.n);
 
 }
 
 int _asignacionVoraz(TIPOELEMENTOLISTA e, int mBeneficios[][N]){
     int beneficioAcumulado = 0;
+    int usadasAux[N];
+    for(int i = 0; i < N; i++){
+        usadasAux[i] = e.usadas[i];
+    }
+
     for (int i = e.nivel+1; i < N; i++){
         int maxBeneficio = -1;
         int k = -1;
 
         for (int j = 0; j < N; j++){
-            if(!e.usadas[j] && mBeneficios[i][j] > maxBeneficio){
+            if(!usadasAux[j] && mBeneficios[i][j] > maxBeneficio){
                 maxBeneficio = mBeneficios[i][j];
                 k = j;
             }
         }
 
         if(k != -1){
-            e.usadas[k] = 1;
+            usadasAux[k] = 1;
             beneficioAcumulado += maxBeneficio;
         }
     }
@@ -480,8 +570,7 @@ TIPOELEMENTOLISTA _solAsignacionVoraz(TIPOELEMENTOLISTA e, int mBeneficios[][N])
         }
         e.tupla[i] = tMax;
         e.usadas[tMax] = 1;
-        e.beneficioAct = e.beneficioAct + beneficioMax;
-        e.n += 1;
+        e.beneficioAct += beneficioMax;
     }
     e.nivel = N - 1;
     return e;
@@ -508,8 +597,7 @@ void asignacionPrecisa(){
     }
 
     // Seteamos as variables
-    pasosCriterio = 0, pasosXerar = 0, pasosSolucion = 0, pasosMaisIrmans = 0, pasosRetroceder = 0;
-    nodosVisitados = 1;
+    nodosVisitados = 1; // COntamos a raiz
     TLISTA LNV;
     TIPOELEMENTOLISTA raiz, x, y, s;
     float C = 0;
@@ -523,25 +611,18 @@ void asignacionPrecisa(){
     _CI_precisa(&raiz, mBeneficios);
     _CS_precisa(&raiz, mBeneficios);
     _BE(&raiz);
-    raiz.n = 1;
-    y.n = raiz.n;
-
-    s.beneficioAct = -1;
-    y.n = raiz.n;
 
     crearLista(&LNV);
-
     insertarElementoLista(&LNV, primeroLista(LNV), raiz);
+
+    s.beneficioAct = -1;
 
     while(!esListaVacia(LNV)){
         x = _seleccionar(&LNV);
         if(x.CS > C){
             for (int i = 0; i < N; i++){
+                y = x;
                 y.nivel = x.nivel + 1;
-                for(int j = 0; j < N; j++){
-                    y.tupla[j] = x.tupla[j];
-                    y.usadas[j] = x.usadas[j];
-                }
 
                 if (!x.usadas[i]){
                     y.tupla[y.nivel] = i;
@@ -550,7 +631,7 @@ void asignacionPrecisa(){
                     _CI_precisa(&y, mBeneficios);
                     _CS_precisa(&y, mBeneficios);
                     _BE(&y);
-                    y.n += 1;
+                    nodosVisitados ++;
 
                     if (!_solucionRyP(y) && y.CS >= C && y.CS == y.CI){
                         y = _solAsignacionVoraz(y, mBeneficios);
@@ -565,8 +646,6 @@ void asignacionPrecisa(){
                             C = y.beneficioAct;
                     } else if(!_solucionRyP(y) && y.CS > C){
                         insertarElementoLista(&LNV, primeroLista(LNV), y);
-                        if(y.CI > C)
-                            C = y.CI;
                     }
                 }
             }
@@ -575,7 +654,8 @@ void asignacionPrecisa(){
         }
     }
     printf(BOLD_YELLOW "\n>> Ramificacion e poda con asignacón precisa (matriz de tamaño %d):\n" RESET, N);
-    //printf(BOLD_GREEN "\tSolucion: %d\n", s.beneficioAct);
-    printf("\tNum nodos: %d\n" RESET, y.n);
+    printf(BOLD_GREEN "\tSolucion: %d\n", s.beneficioAct);
+    printf("\tNum nodos: %d\n" RESET, nodosVisitados);
 }
+
 
